@@ -9,9 +9,9 @@
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <vector>
 #define MAX_LIVES 5
 
-// https://the-trivia-api.com/api/categories
 using json = nlohmann::json;
 using namespace std;
 using namespace Poco;
@@ -31,10 +31,6 @@ json getData(URI uri) {
     HTTPResponse response;
     session.sendRequest(request);
     std::istream &rs = session.receiveResponse(response);
-    std::cout << response.getStatus() << " " << response.getReason()
-              << std::endl;
-
-    // Poco::JSON::Object obj;
     auto parsedJson = json::parse(rs);
     return parsedJson;
   } catch (Poco::Exception &e) {
@@ -43,36 +39,56 @@ json getData(URI uri) {
   }
 }
 
-string getPreferredCategory(json categories) { return "sport_and_leisure"; }
+string getPreferredCategory(json categories) {
+  cout << "Choose category\n";
+  vector<string> categoryArray;
+  int categoryIndex = 0;
+  for (auto &it : categories.items()) {
+    json currCategory = it.key();
+    cout << categoryIndex + 1 << ". " << currCategory << endl;
+    categoryArray.push_back(currCategory);
+    categoryIndex++;
+  }
+  int categoryLength = categoryArray.size();
+  int choiceCount;
+getInput:
+  cout << "Enter your choice (1-" << categoryLength << "): ";
+  cin >> choiceCount;
+  if (choiceCount > categoryLength) {
+    cout << "Please enter a number between 1 and " << categoryLength << endl;
+    goto getInput;
+  }
+  cout << choiceCount;
+  string chosenCategory = categoryArray[choiceCount - 1];
+  cout << chosenCategory;
+  return chosenCategory;
+}
 
 int main() {
+  string playerName;
+  cout << "Enter your name: ";
+  cin >> playerName;
+  cout << "Hello " << playerName << ", Welcome to cQuiz!\n\n";
+  cout << "Loading categories available...\n";
 
   URI categoryUri("https://the-trivia-api.com/api/categories");
   json categories = getData(categoryUri);
-  cout << categories;
   string preferredCategory = getPreferredCategory(categories);
-  // string preferredCategory = "sport_and_leisure";
   URI questionUri("https://the-trivia-api.com/api/"
                   "questions?categories=" +
                   preferredCategory +
                   "&limit=10&region=IN&"
                   "difficulty=easy");
-  json questions = getData(questionUri);
-  std::ifstream f("data.json");
-  // json questions = json::parse(f);
-  int qCounter = 0, lives = MAX_LIVES, score = 0, choice;
-  string playerName;
-  cout << "Categories: ";
 
-  cout << "Enter your name: ";
-  cin >> playerName;
-  cout << "Hello " << playerName << ", Welcome to cQuiz!\n\n";
+  json questions = getData(questionUri);
+  int qCounter = 0, lives = MAX_LIVES, score = 0, choice;
+
   for (qCounter = 0; qCounter < questions.size() && lives > 0; qCounter++) {
     json currQues = questions[qCounter];
     json options = currQues["incorrectAnswers"];
-    auto correctAns = currQues["correctAnswer"];
+    string correctAns = currQues["correctAnswer"];
     options.push_back(correctAns);
-    sort(correctAns.begin(), correctAns.end());
+    sort(options.begin(), options.end());
 
     cout << "\nQ" << qCounter + 1 << ". " << currQues["question"] << endl;
     cout << "Options:\n";
@@ -96,7 +112,7 @@ int main() {
       cout << "Right Answer!\nScore = " << score << endl;
     } else {
       cout << "Wrong Answer!\nCorrect answer is: " << correctAns;
-      cout << "\nLives left = " << --lives;
+      cout << "\nLives left = " << --lives << endl;
     }
   }
 
