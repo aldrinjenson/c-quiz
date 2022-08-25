@@ -1,0 +1,27 @@
+[
+  {
+    "q": "Who is another Missile man of India",
+    "a": "wrong question",
+    "options": [
+      "APJ Abdul Kalam",
+      "Someone Else",
+      "Some other person",
+      "wrong question"
+    ]
+  },
+  {
+    "q": "Who is the Missile man of India",
+    "a": "APJ Abdul Kalam",
+    "options": [
+      "APJ Abdul Kalam",
+      "Someone Else",
+      "Some other person",
+      "no idea"
+    ]
+  },
+  { "q": "what is 1+1?", "a": 2, "options": [1, 2, 3, 4] },
+  { "q": "what is 2+1?", "a": 3, "options": [1, 2, 3, 4] },
+  { "q": "what is 3+1?", "a": 4, "options": [1, 2, 3, 4] },
+  { "q": "what is 4+1?", "a": 5, "options": [1, 2, 3, 4] },
+  { "q": "what is 5+1?", "a": 6, "options": [1, 2, 3, 4] }
+]
