@@ -1,6 +1,6 @@
 [
   {
-    "q": "Who is another Missile man of India",
+    "q": "who is another Missile man of India?",
     "a": "wrong question",
     "options": [
       "APJ Abdul Kalam",
@@ -10,7 +10,7 @@
     ]
   },
   {
-    "q": "Who is the Missile man of India",
+    "q": "who is the Missile man of India?",
     "a": "APJ Abdul Kalam",
     "options": [
       "APJ Abdul Kalam",
