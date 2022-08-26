@@ -34,7 +34,9 @@ json getData(URI uri) {
     auto parsedJson = json::parse(rs);
     return parsedJson;
   } catch (Poco::Exception &e) {
-    cout << "Error in GET Request: " << e.displayText() << endl;
+    cout << "Error in getting quiz data: " << e.displayText() << endl;
+    cout << "Check your internet connection and try again.\nExiting..\n";
+    exit(0);
     return {};
   }
 }
@@ -51,14 +53,19 @@ string getPreferredCategory(json categories) {
   }
   int categoryLength = categoryArray.size();
   int choiceCount;
+  // for (auto st : categoryArray) {
+  //   cout << st << " ";
+  // }
+  // cout << categoryArray[1];
+  // cout << categoryArray[2];
 getInput:
   cout << "Enter your choice (1-" << categoryLength << "): ";
   cin >> choiceCount;
+  // cout << choiceCount;
   if (choiceCount > categoryLength) {
     cout << "Please enter a number between 1 and " << categoryLength << endl;
     goto getInput;
   }
-  cout << choiceCount;
   string chosenCategory = categoryArray[choiceCount - 1];
   cout << chosenCategory;
   return chosenCategory;
@@ -72,8 +79,8 @@ int main() {
   cout << "Loading categories available...\n";
 
   URI categoryUri("https://the-trivia-api.com/api/categories");
-  json categories = getData(categoryUri);
-  string preferredCategory = getPreferredCategory(categories);
+  json categoriesJson = getData(categoryUri);
+  string preferredCategory = getPreferredCategory(categoriesJson);
   URI questionUri("https://the-trivia-api.com/api/"
                   "questions?categories=" +
                   preferredCategory +
