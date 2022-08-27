@@ -9,8 +9,11 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <mariadb/conncpp.hpp>
+#include <mariadb/conncpp/SQLString.hpp>
 #include <nlohmann/json.hpp>
 #include <sql.h>
+#include <string>
 #include <vector>
 #define MAX_LIVES 5
 
@@ -55,15 +58,9 @@ string getPreferredCategory(json categories) {
   }
   int categoryLength = categoryArray.size();
   int choiceCount;
-  // for (auto st : categoryArray) {
-  //   cout << st << " ";
-  // }
-  // cout << categoryArray[1];
-  // cout << categoryArray[2];
 getInput:
   cout << "Enter your choice (1-" << categoryLength << "): ";
   cin >> choiceCount;
-  // cout << choiceCount;
   if (choiceCount > categoryLength) {
     cout << "Please enter a number between 1 and " << categoryLength << endl;
     goto getInput;
@@ -73,17 +70,50 @@ getInput:
   return chosenCategory;
 }
 
+void saveData(std::shared_ptr<sql::PreparedStatement> &stmnt,
+              sql::SQLString playerName, int score) {
+  try {
+    stmnt->setString(1, playerName);
+    stmnt->setInt(2, score);
+    stmnt->execute();
+    cout << "Name and score saved to database" << endl;
+  } catch (sql::SQLException &e) {
+    std::cerr << "Error adding name and score to database: " << e.what()
+              << std::endl;
+  }
+}
+sql::Driver *driver = sql::mariadb::get_driver_instance();
+sql::SQLString url("jdbc:mariadb://localhost:3306/test");
+sql::Properties properties({{"user", "db_user"},
+                            {"password", "db_user_password"}});
+std::unique_ptr<sql::Connection> conn(driver->connect(url, properties));
+
+void addScoreToDb(string initialName, int score) {
+  string playerName = initialName;
+  printf("Enter name to be saved(default = %s): ", initialName.c_str());
+  cin >> playerName;
+  std::shared_ptr<sql::PreparedStatement> stmnt(
+      conn->prepareStatement("INSERT INTO test.quizscores(name, "
+                             "score) VALUES (?, ?)"));
+  saveData(stmnt, playerName, score);
+}
+void showHighScores() {
+  std::shared_ptr<sql::PreparedStatement> stmnt(
+      conn->prepareStatement("SELECT * from test.quizscores"));
+}
+
 int main() {
   string playerName;
   cout << "Enter your name: ";
+
   cin >> playerName;
   cout << "Hello " << playerName << ", Welcome to cQuiz!\n\n";
   cout << "Loading categories available...\n";
 
   URI categoryUri("https://the-trivia-api.com/api/categories");
-  // json categoriesJson = getData(categoryUri);
-  // string preferredCategory = getPreferredCategory(categoriesJson);
-  string preferredCategory = "music";
+  json categoriesJson = getData(categoryUri);
+  string preferredCategory = getPreferredCategory(categoriesJson);
+  // string preferredCategory = "music";
   URI questionUri("https://the-trivia-api.com/api/"
                   "questions?categories=" +
                   preferredCategory +
@@ -93,7 +123,8 @@ int main() {
   json questions = getData(questionUri);
   int qCounter = 0, lives = MAX_LIVES, score = 0, choice;
 
-  for (qCounter = 0; qCounter < questions.size() && lives > 0; qCounter++) {
+  // for (qCounter = 0; qCounter < questions.size() && lives > 0; qCounter++) {
+  for (qCounter = 0; qCounter < 2 && lives > 0; qCounter++) {
     json currQues = questions[qCounter];
     json options = currQues["incorrectAnswers"];
     string correctAns = currQues["correctAnswer"];
@@ -130,4 +161,6 @@ int main() {
        << "\nQuestions solved = " << qCounter
        << "\nLives used = " << MAX_LIVES - lives << "\nFinal Score = " << score
        << endl;
+  addScoreToDb(playerName, score);
+  conn->close();
 }
