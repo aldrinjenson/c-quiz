@@ -5,10 +5,12 @@
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPSClientSession.h>
 #include <Poco/StreamCopier.h>
+#include <Poco/String.h>
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <sql.h>
 #include <vector>
 #define MAX_LIVES 5
 
@@ -67,7 +69,7 @@ getInput:
     goto getInput;
   }
   string chosenCategory = categoryArray[choiceCount - 1];
-  cout << chosenCategory;
+  replace(chosenCategory.begin(), chosenCategory.end(), ' ', '_');
   return chosenCategory;
 }
 
@@ -79,8 +81,9 @@ int main() {
   cout << "Loading categories available...\n";
 
   URI categoryUri("https://the-trivia-api.com/api/categories");
-  json categoriesJson = getData(categoryUri);
-  string preferredCategory = getPreferredCategory(categoriesJson);
+  // json categoriesJson = getData(categoryUri);
+  // string preferredCategory = getPreferredCategory(categoriesJson);
+  string preferredCategory = "music";
   URI questionUri("https://the-trivia-api.com/api/"
                   "questions?categories=" +
                   preferredCategory +
