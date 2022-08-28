@@ -1,5 +1,4 @@
-#include <iostream>
-#include <nlohmann/json.hpp>
+#include "../headers/utils.h"
 
 using std::cin;
 using std::cout;
@@ -24,6 +23,7 @@ getInput:
   cout << "Enter your choice (1-" << categoryLength << "): ";
   cin >> choiceCount;
   if (!cin || choiceCount > categoryLength) {
+    // to handle cases when characters other than numbers are entered
     cin.clear(); // reset failbit
     cin.ignore(std::numeric_limits<std::streamsize>::max(),
                '\n'); // skip bad input
