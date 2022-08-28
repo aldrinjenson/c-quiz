@@ -4,15 +4,12 @@
 #include "Poco/URI.h"
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPSClientSession.h>
-#include <Poco/StreamCopier.h>
-#include <Poco/String.h>
-#include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <mariadb/conncpp.hpp>
 #include <mariadb/conncpp/SQLString.hpp>
 #include <nlohmann/json.hpp>
-#include <sql.h>
 #include <string>
 #include <vector>
 #define MAX_LIVES 5
@@ -61,7 +58,10 @@ string getPreferredCategory(json categories) {
 getInput:
   cout << "Enter your choice (1-" << categoryLength << "): ";
   cin >> choiceCount;
-  if (choiceCount > categoryLength) {
+  if (!cin || choiceCount > categoryLength) {
+    cin.clear(); // reset failbit
+    cin.ignore(std::numeric_limits<std::streamsize>::max(),
+               '\n'); // skip bad input
     cout << "Please enter a number between 1 and " << categoryLength << endl;
     goto getInput;
   }
@@ -136,8 +136,8 @@ int main() {
   json questions = getData(questionUri);
   int qCounter = 0, lives = MAX_LIVES, score = 0, choice;
 
-  // for (qCounter = 0; qCounter < questions.size() && lives > 0; qCounter++) {
-  for (qCounter = 0; qCounter < 2 && lives > 0; qCounter++) {
+  for (qCounter = 0; qCounter < questions.size() && lives > 0; qCounter++) {
+    // for (qCounter = 0; qCounter < 2 && lives > 0; qCounter++) {
     json currQues = questions[qCounter];
     json options = currQues["incorrectAnswers"];
     string correctAns = currQues["correctAnswer"];
@@ -154,7 +154,10 @@ int main() {
   getOptionInput:
     cout << "\nEnter your choice: ";
     cin >> choice;
-    if (choice > options.size()) {
+    if (!cin || choice > options.size()) {
+      cin.clear(); // reset failbit
+      cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                 '\n'); // skip bad input
       cout << "Invalid option!\nPlease try again";
       goto getOptionInput;
     }
