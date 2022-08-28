@@ -4,7 +4,9 @@
 #include <Poco/Net/HTTPSClientSession.h>
 #include <iostream>
 
+using Poco::URI;
 using namespace Poco::Net;
+using json = nlohmann::json;
 
 json getData(URI uri) {
   std::string path(uri.getPathAndQuery());
