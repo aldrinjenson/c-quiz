@@ -16,7 +16,7 @@ using std::string;
 int main() {
   string playerName;
   cout << "Enter your name: ";
-  cin >> playerName;
+  getline(cin, playerName);
   cout << "Hello " << playerName << ", Welcome to cQuiz!\n\n";
   cout << "Loading categories available...\n";
 
