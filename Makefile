@@ -1,6 +1,3 @@
-# run: quiz
-# 	./quiz
-
 quiz: main.o dbFuncs.o requests.o utils.o
 	g++ main.o dbFuncs.o requests.o utils.o -lPocoNetSSL -lPocoFoundation -lPocoNet -lPocoUtil -lmariadbcpp -o quiz
 
@@ -17,6 +14,9 @@ utils.o: implemetations/utils.cpp
 
 clean:
 	rm *.o
+
+run: quiz
+	./quiz
 
 build: quiz
 	rm *.o
