@@ -18,6 +18,7 @@ void addScoreToDb(string initialName, int score) {
     cout << "Skipping..\n";
     exit(0);
   }
+  
   std::shared_ptr<sql::PreparedStatement> stmnt(
       conn->prepareStatement("INSERT INTO test.quizscores(name, "
                              "score) VALUES (?, ?)"));
@@ -39,6 +40,7 @@ void showHighScores() {
   try {
     std::unique_ptr<sql::ResultSet> res(stmnt->executeQuery(
         "SELECT name, score FROM test.quizscores order by score desc"));
+
     while (res->next()) {
       std::cout << counter++ << ". " << res->getString("name") << ": "
                 << res->getString("score") << endl;

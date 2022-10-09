@@ -21,13 +21,18 @@ json getData(URI uri) {
     HTTPRequest request(HTTPRequest::HTTP_GET, path, HTTPMessage::HTTP_1_1);
     HTTPResponse response;
     session.sendRequest(request);
+
     std::istream &rs = session.receiveResponse(response);
     auto parsedJson = json::parse(rs);
+
     return parsedJson;
+
   } catch (Poco::Exception &e) {
     std::cout << "Error in getting quiz data: " << e.displayText() << std::endl;
     std::cout << "Check your internet connection and try again.\nExiting..\n";
+
     exit(0);
     return {};
+
   }
 }
